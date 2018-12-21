@@ -4,7 +4,6 @@ import cn.org.wangsong.entity.BaseWord;
 import cn.org.wangsong.entity.Perceptual;
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGImageEncoder;
-import org.omg.PortableInterceptor.INACTIVE;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -13,7 +12,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -214,14 +212,14 @@ public class ImgUtil {
         }
         File out = new File(targetPath);
 
-        BufferedImage bufferedImage = getBufferedImage(originPath, proportion);
+        BufferedImage bufferedImage = getBufferedLineImage(originPath, proportion);
         if (bufferedImage == null) return;
 
         wirteImg(out,bufferedImage);
 
     }
 
-    private static BufferedImage getBufferedImage(String originPath, float proportion) {
+    private static BufferedImage getBufferedLineImage(String originPath, float proportion) {
         BufferedImage image ;
         try {
             image = ImageIO.read(new File(originPath));
@@ -413,6 +411,7 @@ public class ImgUtil {
     }
 
     public static void genASCIINew(String originPath,String targetPath,int xw,int yh) throws IOException {
+
         String ss = " `*@#.aO";
         HashMap<Character, BufferedImage> map = new HashMap<Character, BufferedImage>();
         for (char c : ss.toCharArray()) {
@@ -425,14 +424,8 @@ public class ImgUtil {
             out.createNewFile();
         }
         FileWriter fileWriter = new FileWriter(out);
-        BufferedImage image ;
-        try {
-            image = ImageIO.read(new File(originPath));
-        } catch (IOException e) {
-            System.out.println("读取图片异常");
-            System.out.println("图片路径："+originPath);
-            return;
-        }
+
+        BufferedImage image = getBufferedLineImage(originPath, 0.07f);
         int width = image.getWidth();
         int height = image.getHeight();
         //
