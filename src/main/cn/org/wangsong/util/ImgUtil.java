@@ -2,6 +2,7 @@ package cn.org.wangsong.util;
 
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGImageEncoder;
+import org.omg.PortableInterceptor.INACTIVE;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -53,7 +54,7 @@ public class ImgUtil {
 
     }
     //将图片写入文件
-    private static void wirteImg(File out, BufferedImage bufferedImage) {
+    public static void wirteImg(File out, BufferedImage bufferedImage) {
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(out);
@@ -258,11 +259,13 @@ public class ImgUtil {
 
     private static int transformGrey(BufferedImage image, int i, int j) {
         int rgb = image.getRGB(i, j);
-
+        //舍弃掉了 阿尔法 值
         int r = (rgb & 0Xff0000)>>16;
         int g = (rgb & 0Xff00)>>8;
         int b = (rgb & 0Xff);
-        return (r+g+b)/3;
+        //return (r+g+b)/3;
+        //这个据说最符合人类的感觉
+        return new Double(0.299*r+0.587*g+0.114*b).intValue();
     }
 
     private static void genASCII(String originPath,String targetPath){
@@ -277,20 +280,26 @@ public class ImgUtil {
 
     }
 
-    //计算字符的特征值
-    //一点都不严谨
-    //todo 待完成
+    /**
+     * 计算字符的特征值
+        一点都不严谨
+        todo 待完成
+     * 用汉明距离代替
+     * @param c
+     * @return
+     */
+    @Deprecated
     private static int calFlagVal(char c){
-        BufferedImage bi = new BufferedImage(100, 100, BufferedImage.TYPE_BYTE_GRAY);
+        BufferedImage bi = new BufferedImage(8, 8, BufferedImage.TYPE_BYTE_GRAY);
 
         Graphics graphics = bi.getGraphics();
         graphics.setColor(Color.WHITE);
-        for (int i =0;i<=100;i++){
-            graphics.drawLine(0,i,100,i);
+        for (int i =0;i<=8;i++){
+            graphics.drawLine(0,i,8,i);
         }
         graphics.setColor(Color.BLACK);
-        graphics.setFont(new Font("宋体",Font.PLAIN,95));
-        graphics.drawString(new String(new char[]{c}),5,75);
+        graphics.setFont(new Font("宋体",Font.PLAIN,60));
+        graphics.drawString(new String(new char[]{c}),2,6);
 
         int flagVal = 0;
 
@@ -300,12 +309,36 @@ public class ImgUtil {
             for(int j = bi.getMinY();j<height;j++){
                 int rgb = bi.getRGB(i, j);
                 if (rgb == 0){//黑色
-                    flagVal += i*100+j;
+                    flagVal += i*64+j;
                 }
             }
         }
 
 
         return 0;
+    }
+
+
+    public static BufferedImage genWordPic(String s,int width,int height){
+        BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+
+        Graphics graphics = bi.getGraphics();
+        graphics.setColor(Color.WHITE);
+        for (int i =0;i<=width;i++){
+            graphics.drawLine(0,i,height,i);
+        }
+        graphics.setColor(Color.BLACK);
+
+        Font font = new Font("宋体", Font.PLAIN, width);
+
+        graphics.setFont(font);
+        //获取文字大小
+        FontMetrics fontMetrics = graphics.getFontMetrics(font);
+
+        int x = (width - fontMetrics.stringWidth(s)) /2;
+        int y = (height - fontMetrics.getHeight()) /2 + fontMetrics.getAscent();
+        graphics.drawString(s,x,y);
+
+        return bi;
     }
 }
