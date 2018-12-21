@@ -1,10 +1,13 @@
 package cn.org.wangsong.entity;
 
+import lombok.Getter;
+
 /**
  * 用来生成字符画的基础字符
  * @Author Created by song.wang
  * @Create Date 2018/12/21 14:05
  */
+@Getter
 public enum BaseWord {
     //前面是字符，后面是指纹
     V1('*',new Perceptual(new long[]{-50800624,10025212,0,0})),
@@ -19,7 +22,8 @@ public enum BaseWord {
     V10('?',new Perceptual(new long[]{-829551092,3734780,926364672,1})),
     V11('_',new Perceptual(new long[]{0,0,-2139062144,-2139062144})),
     V12('=',new Perceptual(new long[]{-2139062144,-2139062144,218959117,218959117})),
-    V13('#',new Perceptual(new long[]{-51355552,2096951404,908017462,101130047}))
+    V13('#',new Perceptual(new long[]{-51355552,2096951404,908017462,101130047})),
+    V14(' ',new Perceptual(new long[]{0,0,0,0})),
     ;
 
 

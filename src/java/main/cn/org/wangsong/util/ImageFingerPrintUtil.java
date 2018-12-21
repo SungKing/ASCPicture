@@ -55,6 +55,14 @@ public class ImageFingerPrintUtil {
         return hash;
     }
 
+    /**
+     * 获取灰度
+     * todo 待完善整理，现有多处
+     * @param r
+     * @param g
+     * @param b
+     * @return
+     */
     private static int getGrey(int r,int g,int b){
         return new Double(0.299*r+0.587*g+0.114*b).intValue();
     }

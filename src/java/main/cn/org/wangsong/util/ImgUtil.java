@@ -1,5 +1,7 @@
 package cn.org.wangsong.util;
 
+import cn.org.wangsong.entity.BaseWord;
+import cn.org.wangsong.entity.Perceptual;
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGImageEncoder;
 import org.omg.PortableInterceptor.INACTIVE;
@@ -9,6 +11,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 
 /**
@@ -17,6 +20,7 @@ import java.io.IOException;
  * @Create Date 2018/12/20 15:28
  */
 public class ImgUtil {
+    public static String NEW_LINE = System.getProperty("line.separator");
 
     /**
      * 转化为灰度图片
@@ -268,15 +272,72 @@ public class ImgUtil {
         return new Double(0.299*r+0.587*g+0.114*b).intValue();
     }
 
-    private static void genASCII(String originPath,String targetPath){
+    public static void genASCII(String originPath,String targetPath) throws IOException {
 
         if (originPath==null || targetPath == null){
             System.out.println("路径值为空");
             return;
         }
+
         File out = new File(targetPath);
-        BufferedImage bufferedImage = getBufferedImage(originPath, 0.05f);
-        String ss = "`·oO|*@M";
+        if (!out.exists()){
+            out.createNewFile();
+        }
+        FileWriter fileWriter = new FileWriter(out);
+        BufferedImage image ;
+        try {
+            image = ImageIO.read(new File(originPath));
+        } catch (IOException e) {
+            System.out.println("读取图片异常");
+            System.out.println("图片路径："+originPath);
+            return;
+        }
+        int width = image.getWidth();
+        int height = image.getHeight();
+        System.out.println(width);
+        System.out.println("X");
+        System.out.println(height);
+        //16*16
+        for(int j=0;j<height-16;j+=16){
+            for(int i=0;i<width-16;i+=16){
+                BufferedImage sub = image.getSubimage(i, j, 16, 16);
+                char c = calSimilarChar(sub);
+                fileWriter.write(new String(new char[]{c,' '}));
+            }
+            System.out.println(j/16);
+            fileWriter.write(NEW_LINE);
+        }
+
+        fileWriter.flush();
+        fileWriter.close();
+
+
+    }
+
+    /**
+     * 计算出醉相近的替换方案
+     * @param img
+     * @return
+     */
+    private static char calSimilarChar(BufferedImage img){
+        Perceptual perceptual = ImageFingerPrintUtil.perceptualHashAlgorithm16(img);
+        long min = Long.MAX_VALUE;
+        BaseWord target = BaseWord.V14;//空
+        for (BaseWord baseWord : BaseWord.values()) {
+            long diff = 0;
+            for (int i = 0;i<4;i++){
+                long[] h1 = baseWord.getP().getHash();
+                long[] p1 = perceptual.getHash();
+                diff +=Math.abs(h1[i]-p1[i]);
+            }
+            if (min>diff){
+                min = diff;
+                target = baseWord;
+            }
+        }
+
+
+        return target.getC();
 
     }
 
@@ -318,7 +379,13 @@ public class ImgUtil {
         return 0;
     }
 
-
+    /**
+     * 将指定字符生成图片
+     * @param s
+     * @param width
+     * @param height
+     * @return
+     */
     public static BufferedImage genWordPic(String s,int width,int height){
         BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
 

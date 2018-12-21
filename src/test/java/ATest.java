@@ -101,4 +101,10 @@ public class ATest {
 //            System.out.println(new String(new char[]{c})+ "======" + perceptual);
         }
     }
+
+    @Test
+    public void test04() throws IOException {
+        //先进的算法并不能解决生产力
+        ImgUtil.genASCII("/Users/song.wang/Downloads/IMG_20181117_175851-black.jpg","/Users/song.wang/Downloads/123.txt");
+    }
 }
