@@ -415,7 +415,7 @@ public class ImgUtil {
         String ss = " `*@#.aO|-";
         HashMap<Character, BufferedImage> map = new HashMap<Character, BufferedImage>();
         for (char c : ss.toCharArray()) {
-            BufferedImage bufferedImage = genWordPic(new String(new char[]{c}), xw, yh);
+            BufferedImage bufferedImage = genWordPic(new String(new char[]{c,c,c}), xw, yh);
             map.put(c,bufferedImage);
         }
 
@@ -424,8 +424,51 @@ public class ImgUtil {
             out.createNewFile();
         }
         FileWriter fileWriter = new FileWriter(out);
+
         //0。1对字符比较友好
         BufferedImage image = getBufferedLineImage(originPath, 0.02f);
+        int width = image.getWidth();
+        int height = image.getHeight();
+        //
+        for (int j=0;j<height-xw;j+=xw){
+            StringBuilder sb = new StringBuilder();
+            for (int i=0;i<width-yh;i+=yh){
+
+                BufferedImage sub = image.getSubimage(i, j, xw, yh);
+                char c = getSimpChar(sub, map);
+                sb.append(c);
+            }
+            fileWriter.write(sb.toString());
+            fileWriter.write(NEW_LINE);
+        }
+        fileWriter.flush();
+        fileWriter.close();
+    }
+
+    /**
+     * TODO 未完成
+     * 将原来的画用字符画一遍，而不是保存成文本
+     * @param originPath
+     * @param targetPath
+     * @param xw
+     * @param yh
+     */
+    public static void genASCIIPic(String originPath,String targetPath,int xw,int yh) throws IOException{
+        String ss = " `*@#.aO|-";
+        HashMap<Character, BufferedImage> map = new HashMap<Character, BufferedImage>();
+        for (char c : ss.toCharArray()) {
+            BufferedImage bufferedImage = genWordPic(new String(new char[]{c,c,c}), xw, yh);
+            map.put(c,bufferedImage);
+        }
+
+        File out = new File(targetPath);
+        if (!out.exists()){
+            out.createNewFile();
+        }
+
+        FileWriter fileWriter = new FileWriter(out);
+
+        BufferedImage image = getBufferedLineImage(originPath, 0.05f);
         int width = image.getWidth();
         int height = image.getHeight();
         //

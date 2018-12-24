@@ -1,4 +1,4 @@
-import cn.org.wangsong.entity.Perceptual;
+
 import cn.org.wangsong.util.ImageFingerPrintUtil;
 import cn.org.wangsong.util.ImgUtil;
 import com.sun.image.codec.jpeg.JPEGCodec;
@@ -85,17 +85,17 @@ public class ATest {
 //            BufferedImage img4 = bi.getSubimage(8, 8, 8, 8);
 //            File f4 = new File("/Users/song.wang/Downloads/" + c + "4.jpg");
 //            ImgUtil.wirteImg(f4,img4);
-            Perceptual perceptual = ImageFingerPrintUtil.perceptualHashAlgorithm16(bi);
-            //System.out.println(new String(new char[]{c})+ "======" + perceptual);
-            System.out.println(String.format("V%d('%s',new Perceptual(new long[]{%d,%d,%d,%d})),",i,c,
-                    perceptual.getHash()[0],
-                    perceptual.getHash()[1],
-                    perceptual.getHash()[2],
-                    perceptual.getHash()[3]
-
-                    ));
-            i++;
-            break;
+//            Perceptual perceptual = ImageFingerPrintUtil.perceptualHashAlgorithm16(bi);
+//            //System.out.println(new String(new char[]{c})+ "======" + perceptual);
+//            System.out.println(String.format("V%d('%s',new Perceptual(new long[]{%d,%d,%d,%d})),",i,c,
+//                    perceptual.getHash()[0],
+//                    perceptual.getHash()[1],
+//                    perceptual.getHash()[2],
+//                    perceptual.getHash()[3]
+//
+//                    ));
+//            i++;
+//            break;
             //break;
 //            Perceptual perceptual = ImageFingerPrintUtil.perceptualHashAlgorithm16(bi);
 //            System.out.println(new String(new char[]{c})+ "======" + perceptual);
@@ -108,4 +108,14 @@ public class ATest {
         //ImgUtil.genASCIINew("/Users/song.wang/Downloads/IMG_20181117_175851-black.jpg","/Users/song.wang/Downloads/123.txt",20,20);
         ImgUtil.genASCIINew("/Users/song.wang/Downloads/IMG_20181117_175851.jpg","/Users/song.wang/Downloads/123.txt",20,20);
     }
+
+    @Test
+    public void test05() throws IOException {
+        ImgUtil.genASCIINew("F:\\Downloads\\1875164769.jpg","F:\\Downloads\\123.txt",5,5);
+    }
+    @Test
+    public void test06(){
+        ImgUtil.genLineImgNew("F:\\Downloads\\1875164769.jpg","F:\\Downloads\\1875164769-line.jpg",0.02f);
+    }
+
 }
