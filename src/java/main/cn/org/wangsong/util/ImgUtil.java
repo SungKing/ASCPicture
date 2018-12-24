@@ -218,7 +218,7 @@ public class ImgUtil {
         wirteImg(out,bufferedImage);
 
     }
-
+    //0.07是个比较好的比例
     private static BufferedImage getBufferedLineImage(String originPath, float proportion) {
         BufferedImage image ;
         try {
@@ -412,7 +412,7 @@ public class ImgUtil {
 
     public static void genASCIINew(String originPath,String targetPath,int xw,int yh) throws IOException {
 
-        String ss = " `*@#.aO";
+        String ss = " `*@#.aO|-";
         HashMap<Character, BufferedImage> map = new HashMap<Character, BufferedImage>();
         for (char c : ss.toCharArray()) {
             BufferedImage bufferedImage = genWordPic(new String(new char[]{c}), xw, yh);
@@ -424,8 +424,8 @@ public class ImgUtil {
             out.createNewFile();
         }
         FileWriter fileWriter = new FileWriter(out);
-
-        BufferedImage image = getBufferedLineImage(originPath, 0.07f);
+        //0。1对字符比较友好
+        BufferedImage image = getBufferedLineImage(originPath, 0.02f);
         int width = image.getWidth();
         int height = image.getHeight();
         //

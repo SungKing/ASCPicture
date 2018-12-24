@@ -106,6 +106,6 @@ public class ATest {
     public void test04() throws IOException {
         //先进的算法并不能解决生产力
         //ImgUtil.genASCIINew("/Users/song.wang/Downloads/IMG_20181117_175851-black.jpg","/Users/song.wang/Downloads/123.txt",20,20);
-        ImgUtil.genASCIINew("/Users/song.wang/Downloads/aaaa.jpg","/Users/song.wang/Downloads/123.txt",5,5);
+        ImgUtil.genASCIINew("/Users/song.wang/Downloads/IMG_20181117_175851.jpg","/Users/song.wang/Downloads/123.txt",20,20);
     }
 }
