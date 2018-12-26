@@ -2,6 +2,7 @@ package cn.org.wangsong.util;
 
 import cn.org.wangsong.entity.Perceptual;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 /**
@@ -10,6 +11,56 @@ import java.awt.image.BufferedImage;
  * @Create Date 2018/12/21 09:42
  */
 public class ImageFingerPrintUtil {
+
+
+    /**
+     * 计算汉明距离
+     * @param bi
+     * @return
+     */
+    public static long perceptualHashAlgorithm(BufferedImage bi){
+        if (bi.getWidth()<8 || bi.getHeight()<8){
+            throw new IllegalStateException("图片大小不符合尺寸");
+        }
+
+        final int width = 8;
+        final int height = 8;
+        Image image = bi.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+        Graphics graphics = bufferedImage.getGraphics();
+        graphics.drawImage(image,0,0,null);
+
+
+        //计算灰度值的和
+        long greySum = 0;
+        for (int i =0;i<width;i++){
+            for (int j=0;j<height;j++){
+                int rgb = bufferedImage.getRGB(i, j);
+                int r = (rgb & 0Xff0000)>>16;
+                int g = (rgb & 0Xff00)>>8;
+                int b = (rgb & 0Xff);
+                greySum += getGrey(r,g,b);
+            }
+        }
+        //计算hash
+        long hash = 0;
+        double average = greySum*1.0/(width*height);
+        //System.out.println("average = "+average);
+        for (int i =0;i<width;i++){
+            for (int j=0;j<height;j++){
+                int rgb = bi.getRGB(i, j);//rgb=-1代表白色
+                int r = (rgb & 0Xff0000)>>16;
+                int g = (rgb & 0Xff00)>>8;
+                int b = (rgb & 0Xff);
+                int grey = getGrey(r,g,b);
+                if (grey<average){//黑色
+                    hash |= 1 << ( i*8 + j);
+                    //System.out.println(Long.toBinaryString(hash));
+                }
+            }
+        }
+        return hash;
+    }
 
     /**
      *
@@ -20,6 +71,7 @@ public class ImageFingerPrintUtil {
      * @param bi
      * @return
      */
+    @Deprecated
     public static long perceptualHashAlgorithm8(BufferedImage bi){
         if (bi.getWidth()!=8 || bi.getHeight()!=8){
             throw new IllegalStateException("图片大小不符合尺寸");
@@ -73,6 +125,7 @@ public class ImageFingerPrintUtil {
      * @param bi
      * @return
      */
+    @Deprecated
     public static Perceptual perceptualHashAlgorithm16(BufferedImage bi){
         if (bi.getWidth()!=16 || bi.getHeight()!=16){
             throw new IllegalStateException("图片大小不符合尺寸");

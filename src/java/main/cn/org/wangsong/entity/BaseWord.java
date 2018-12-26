@@ -4,6 +4,7 @@ import lombok.Getter;
 
 /**
  * 用来生成字符画的基础字符
+ * maybe这个指纹似乎不太理想
  * @Author Created by song.wang
  * @Create Date 2018/12/21 14:05
  */
@@ -24,6 +25,7 @@ public enum BaseWord {
     V12('=',new Perceptual(new long[]{-2139062144,-2139062144,218959117,218959117})),
     V13('#',new Perceptual(new long[]{-51355552,2096951404,908017462,101130047})),
     V14(' ',new Perceptual(new long[]{0,0,0,0})),
+    V15('|',new Perceptual(new long[]{-33554432,254,-16777216,255}))
     ;
 
 

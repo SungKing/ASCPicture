@@ -413,11 +413,7 @@ public class ImgUtil {
     public static void genASCIINew(String originPath,String targetPath,int xw,int yh) throws IOException {
 
         String ss = " `*@#.aO|-";
-        HashMap<Character, BufferedImage> map = new HashMap<Character, BufferedImage>();
-        for (char c : ss.toCharArray()) {
-            BufferedImage bufferedImage = genWordPic(new String(new char[]{c,c,c}), xw, yh);
-            map.put(c,bufferedImage);
-        }
+        HashMap<Character, BufferedImage> map = getCharacterBufferedImageMap(xw, yh, ss);
 
         File out = new File(targetPath);
         if (!out.exists()){
@@ -446,7 +442,7 @@ public class ImgUtil {
     }
 
     /**
-     * TODO 未完成
+     *
      * 将原来的画用字符画一遍，而不是保存成文本
      * @param originPath
      * @param targetPath
@@ -455,39 +451,163 @@ public class ImgUtil {
      */
     public static void genASCIIPic(String originPath,String targetPath,int xw,int yh) throws IOException{
         String ss = " `*@#.aO|-";
-        HashMap<Character, BufferedImage> map = new HashMap<Character, BufferedImage>();
-        for (char c : ss.toCharArray()) {
-            BufferedImage bufferedImage = genWordPic(new String(new char[]{c,c,c}), xw, yh);
-            map.put(c,bufferedImage);
-        }
+        HashMap<Character, BufferedImage> map = getCharacterBufferedImageMap(xw, yh, ss);
 
         File out = new File(targetPath);
         if (!out.exists()){
             out.createNewFile();
         }
 
-        FileWriter fileWriter = new FileWriter(out);
 
         BufferedImage image = getBufferedLineImage(originPath, 0.05f);
         int width = image.getWidth();
         int height = image.getHeight();
-        //
-        for (int j=0;j<height-xw;j+=xw){
-            StringBuilder sb = new StringBuilder();
-            for (int i=0;i<width-yh;i+=yh){
 
+        //创建新图像
+        BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+        Graphics graphics = result.getGraphics();
+
+        for (int j=0;j<height-xw;j+=xw){
+            for (int i=0;i<width-yh;i+=yh){
                 BufferedImage sub = image.getSubimage(i, j, xw, yh);
-                char c = getSimpChar(sub, map);
-                sb.append(c);
+                BufferedImage simpCharImg = getSimpCharImg(sub, map);
+                graphics.drawImage(simpCharImg,i,j,xw,yh,Color.BLACK,null);
             }
-            fileWriter.write(sb.toString());
-            fileWriter.write(NEW_LINE);
         }
-        fileWriter.flush();
-        fileWriter.close();
+
+        wirteImg(out,result);
+    }
+
+    //使用汉明距离计算
+    public static void genASCIIPicByHanming(String originPath,String targetPath,int xw,int yh) throws IOException{
+
+        File out = new File(targetPath);
+        if (!out.exists()){
+            out.createNewFile();
+        }
+
+
+        BufferedImage image = ImageIO.read(new File(originPath));
+
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        //创建新图像
+        BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+        Graphics graphics = result.getGraphics();
+        StringBuilder s = new StringBuilder();
+        for (BaseWord baseWord : BaseWord.values()) {
+            s.append(baseWord.getC());
+        }
+        HashMap<Character, BufferedImage> map = getCharacterBufferedImageMap(xw, yh, s.toString());
+
+        for (int j=0;j<height-xw;j+=xw){
+            for (int i=0;i<width-yh;i+=yh){
+                BufferedImage sub = image.getSubimage(i, j, xw, yh);
+                //BufferedImage simpCharImg = getSimpCharImg(sub, null);
+                char c = getSimilarImgByHanming(sub);
+                BufferedImage simpCharImg = map.get(c);
+                graphics.drawImage(simpCharImg,i,j,xw,yh,Color.BLACK,null);
+            }
+        }
+
+        wirteImg(out,result);
     }
 
 
+
+    private static char getSimilarImgByHanming(BufferedImage sub){
+        Perceptual perceptual = ImageFingerPrintUtil.perceptualHashAlgorithm16(sub);
+        BaseWord[] values = BaseWord.values();
+
+        long min = Long.MAX_VALUE;
+        char c = ' ';
+        for (BaseWord val : values) {
+            long distance = Perceptual.distance(perceptual, val.getP());
+            if (distance<=min){
+                min = distance;
+                c = val.getC();
+            }
+        }
+        return c;
+    }
+
+    //**********************************************************终极版本***************************************************************
+    public static void genASCIIBYHM2(String originPath,String targetPath,int px) throws IOException {
+        File out = new File(targetPath);
+        if (!out.exists()){
+            out.createNewFile();
+        }
+
+        BufferedImage image = ImageIO.read(new File(originPath));
+
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        //创建新图像
+        BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+        Graphics graphics = result.getGraphics();
+
+        String ss = " `*@#.aO|-";
+
+        HashMap<Character, BufferedImage> map = getCharacterBufferedImageMap(px, px, ss);
+
+        HashMap<Character,Long> hanmingmap = getCharHanmingMap(map);
+        for (int j=0;j<height-px;j+=px){
+            for (int i=0;i<width-px;i+=px){
+                BufferedImage sub = image.getSubimage(i, j, px, px);
+                //BufferedImage simpCharImg = getSimpCharImg(sub, null);
+                char c = getSimilarImgByHanmingNew(sub,hanmingmap);
+                BufferedImage simpCharImg = map.get(c);
+                graphics.drawImage(simpCharImg,i,j,px,px,Color.BLACK,null);
+            }
+        }
+
+        wirteImg(out,result);
+
+
+    }
+
+    private static char getSimilarImgByHanmingNew(BufferedImage sub, HashMap<Character, Long> hanmingmap) {
+        long l = ImageFingerPrintUtil.perceptualHashAlgorithm(sub);
+
+        long min = Long.MAX_VALUE;
+        char c = ' ';
+        for (Map.Entry<Character, Long> entry : hanmingmap.entrySet()) {
+            long distance = ImageFingerPrintUtil.calHammingDiatance(l, entry.getValue());
+            if (distance<=min){
+                min = distance;
+                c = entry.getKey();
+            }
+        }
+
+        return c;
+    }
+
+    private static HashMap<Character, Long> getCharHanmingMap(HashMap<Character, BufferedImage> map) {
+        HashMap<Character, Long> result = new HashMap<Character, Long>();
+        for (Map.Entry<Character, BufferedImage> entry : map.entrySet()) {
+            result.put(entry.getKey(),ImageFingerPrintUtil.perceptualHashAlgorithm(entry.getValue()));
+        }
+        return result;
+    }
+
+    //**********************************************************终极版本***************************************************************
+
+
+
+
+    //获取由指定字符生成的图片
+    private static HashMap<Character, BufferedImage> getCharacterBufferedImageMap(int xw, int yh, String ss) {
+        HashMap<Character, BufferedImage> map = new HashMap<Character, BufferedImage>();
+        for (char c : ss.toCharArray()) {
+            BufferedImage bufferedImage = genWordPic(new String(new char[]{c,c,c}), xw, yh);
+            map.put(c,bufferedImage);
+        }
+        return map;
+    }
+
+    //通过比较获取最优的字符
     private static char getSimpChar(BufferedImage image,HashMap<Character, BufferedImage> map){
         char c = ' ';
         int min = Integer.MAX_VALUE;
@@ -507,5 +627,28 @@ public class ImgUtil {
             }
         }
         return c;
+    }
+
+    //通过比较获取最优的字符图像
+    //其实调用方不需要进行null判断，因为一定有解
+    private static BufferedImage getSimpCharImg(BufferedImage image,HashMap<Character, BufferedImage> map){
+        BufferedImage result = null;
+        int min = Integer.MAX_VALUE;
+        for (Map.Entry<Character, BufferedImage> entry : map.entrySet()) {
+            int temp = 0;
+            BufferedImage bi = entry.getValue();
+            for (int i1 = 0;i1<bi.getWidth();i1++){
+                for (int j1=0;j1<bi.getHeight();j1++){
+                    if (bi.getRGB(i1,j1)!=image.getRGB(i1,j1)){
+                        temp++;
+                    }
+                }
+            }
+            if (min>temp){
+                min = temp;
+                result = bi;
+            }
+        }
+        return result;
     }
 }
